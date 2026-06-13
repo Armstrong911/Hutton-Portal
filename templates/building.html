@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ building.name }} — Hutton Portal{% endblock %}
+{% block content %}
+<a href="/" style="font-size:.85rem; color:rgba(0,0,0,0.4); text-decoration:none;">← Dashboard</a>
+<h1 style="margin-top:16px;">{{ building.name }}</h1>
+{% if building.address %}<p style="color:rgba(0,0,0,0.45); margin-bottom:24px;">{{ building.address }}</p>{% endif %}
+
+<!-- Notices -->
+<h2>Work Notices</h2>
+{% if building.notices %}
+  {% for n in building.notices %}
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <div style="font-weight:700;">{{ n.title }}</div>
+        {% if n.body %}<p style="margin-top:8px; font-size:.9rem; color:rgba(0,0,0,0.65);">{{ n.body }}</p>{% endif %}
+        <div style="font-size:.75rem; color:rgba(0,0,0,0.35); margin-top:8px;">Posted {{ n.created_at.strftime('%b %d, %Y') }} · Expires {{ n.expires_at.strftime('%b %d, %Y') }}</div>
+      </div>
+      {% if current_user.role in ['admin','editor'] %}
+      <form method="POST" action="/notice/{{ n.id }}/delete" style="margin-left:16px;">
+        <button type="submit" class="pill danger" style="font-size:.75rem; padding:6px 14px;" onclick="return confirm('Delete this notice?')">Delete</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <p style="color:rgba(0,0,0,0.4); font-size:.9rem; margin-bottom:16px;">No active work notices.</p>
+{% endif %}
+
+{% if current_user.role in ['admin','editor','contractor'] %}
+<div class="card" style="margin-top:8px;">
+  <h2 style="margin-top:0;">Post a Work Notice</h2>
+  <form method="POST" action="/building/{{ building.id }}/notice">
+    <div class="form-row"><label>Title</label><input type="text" name="title" required placeholder="e.g. Window Cleaning — All Units" /></div>
+    <div class="form-row"><label>Details (optional)</label><textarea name="body" placeholder="Dates, times, access requirements…"></textarea></div>
+    <button type="submit" class="pill">Post Notice</button>
+  </form>
+</div>
+{% endif %}
+
+<!-- Documents -->
+<h2 style="margin-top:32px;">Documents</h2>
+{% if building.documents %}
+<div class="card" style="padding:0 24px;">
+  <table>
+    <tr><th>Document</th><th>Uploaded</th><th></th></tr>
+    {% for d in building.documents %}
+    <tr>
+      <td><a href="/doc/{{ d.id }}" target="_blank" style="color:#1d1d1f; font-weight:600;">{{ d.label }}</a></td>
+      <td style="color:rgba(0,0,0,0.4); font-size:.82rem;">{{ d.uploaded_at.strftime('%b %d, %Y') }}</td>
+      <td style="text-align:right;">
+        {% if current_user.role in ['admin','editor'] %}
+        <form method="POST" action="/doc/{{ d.id }}/delete" style="display:inline;">
+          <button type="submit" class="pill outline" style="font-size:.75rem; padding:6px 14px;" onclick="return confirm('Delete this document?')">Delete</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% else %}
+  <p style="color:rgba(0,0,0,0.4); font-size:.9rem; margin-bottom:16px;">No documents uploaded yet.</p>
+{% endif %}
+
+{% if current_user.role in ['admin','editor'] %}
+<div class="card" style="margin-top:8px;">
+  <h2 style="margin-top:0;">Upload Document</h2>
+  <form method="POST" action="/building/{{ building.id }}/upload" enctype="multipart/form-data">
+    <div class="form-row"><label>Label</label><input type="text" name="label" placeholder="e.g. AGM Minutes 2024" /></div>
+    <div class="form-row"><label>PDF File</label><input type="file" name="file" accept=".pdf" required /></div>
+    <button type="submit" class="pill">Upload</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

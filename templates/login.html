@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Hutton Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #fff; font-family: 'PT Serif', Georgia, serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .box { width: 100%; max-width: 380px; padding: 24px; }
+    .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: .04em; margin-bottom: 32px; text-align: center; }
+    .form-row { margin-bottom: 22px; }
+    .form-row label { display: block; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; color: rgba(0,0,0,0.42); margin-bottom: 8px; }
+    .form-row input { width: 100%; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.18); padding: 10px 0; font-family: 'PT Serif', Georgia, serif; font-size: 1rem; outline: none; }
+    .form-row input:focus { border-bottom-color: #1d1d1f; }
+    .btn { width: 100%; background: #1d1d1f; color: #fff; font-family: 'PT Serif', Georgia, serif; font-size: .9rem; padding: 14px; border: none; border-radius: 980px; cursor: pointer; letter-spacing: .04em; margin-top: 8px; }
+    .flash { background: #fff3cd; padding: 10px 14px; border-radius: 6px; margin-bottom: 18px; font-size: .88rem; }
+    .disclaimer { font-size: .75rem; color: rgba(0,0,0,0.4); text-align: center; margin-top: 24px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">Hutton</div>
+  {% with msgs = get_flashed_messages() %}{% if msgs %}{% for m in msgs %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}{% endwith %}
+  <form method="POST">
+    <div class="form-row"><label>Email</label><input type="email" name="email" required autofocus /></div>
+    <div class="form-row"><label>Password</label><input type="password" name="password" required /></div>
+    <button type="submit" class="btn">Sign In</button>
+  </form>
+  <p class="disclaimer">Your email is used to notify you when work is being done in your building, including window cleaning, roof inspections, and similar activities.</p>
+</div>
+</body>
+</html>
