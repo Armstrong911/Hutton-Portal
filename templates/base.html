@@ -10,7 +10,12 @@
     html, body { background: #f5f5f7; color: #1d1d1f; font-family: 'PT Serif', Georgia, serif; -webkit-font-smoothing: antialiased; min-height: 100%; }
     nav { background: rgba(245,245,247,0.92); border-bottom: 0.5px solid rgba(0,0,0,0.1); height: 52px; display: flex; align-items: center; padding: 0 28px; position: sticky; top: 0; backdrop-filter: blur(12px); z-index: 100; justify-content: space-between; }
     nav .brand { font-size: .95rem; font-weight: 700; color: #1d1d1f; text-decoration: none; letter-spacing: .04em; }
-    nav .nav-right { display: flex; gap: 20px; align-items: center; font-size: .82rem; }
+    nav .nav-tabs { display: flex; gap: 4px; align-items: center; }
+    nav .nav-tabs a { font-size: .82rem; color: rgba(0,0,0,0.55); text-decoration: none; padding: 6px 14px; border-radius: 980px; transition: background .15s, color .15s; }
+    nav .nav-tabs a:hover { background: rgba(0,0,0,0.06); color: #1d1d1f; }
+    nav .nav-tabs a.active { background: #1d1d1f; color: #fff; }
+    nav .nav-right { display: flex; gap: 16px; align-items: center; font-size: .82rem; }
+    nav .nav-right span { color: rgba(0,0,0,0.45); }
     nav .nav-right a { color: rgba(0,0,0,0.6); text-decoration: none; }
     nav .nav-right a:hover { color: #1d1d1f; }
     .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
@@ -26,27 +31,31 @@
     .form-row input, .form-row select, .form-row textarea { width: 100%; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.18); padding: 8px 0; font-family: 'PT Serif', Georgia, serif; font-size: .95rem; color: #1d1d1f; outline: none; }
     .form-row textarea { resize: vertical; min-height: 80px; }
     .flash { background: #fff3cd; border: 1px solid #ffc107; padding: 12px 18px; border-radius: 8px; margin-bottom: 18px; font-size: .9rem; }
-    .badge { display: inline-block; font-size: .7rem; padding: 3px 10px; border-radius: 980px; letter-spacing: .06em; text-transform: uppercase; }
-    .badge.admin      { background: #1d1d1f; color: #fff; }
-    .badge.editor     { background: #e0e0e0; color: #333; }
-    .badge.viewer     { background: #f0f0f0; color: #666; }
-    .badge.contractor { background: #d4e8d4; color: #2d6a2d; }
     table { width: 100%; border-collapse: collapse; font-size: .9rem; }
     th { text-align: left; font-size: .72rem; letter-spacing: .07em; text-transform: uppercase; color: rgba(0,0,0,0.4); padding: 8px 0; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
     td { padding: 12px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); vertical-align: middle; }
-    @media(max-width:600px){ .container{padding:24px 16px 60px;} .card{padding:18px;} }
+    /* Tabs within a page */
+    .tab-bar { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 0.5px solid rgba(0,0,0,0.1); padding-bottom: 0; }
+    .tab-bar a { font-size: .85rem; padding: 8px 18px; border-radius: 8px 8px 0 0; text-decoration: none; color: rgba(0,0,0,0.5); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab-bar a.active { color: #1d1d1f; font-weight: 700; border-bottom: 2px solid #1d1d1f; }
+    @media(max-width:600px){ nav .nav-tabs { display: none; } .container{padding:24px 16px 60px;} .card{padding:18px;} }
   </style>
 </head>
 <body>
 <nav>
-  <a class="brand" href="/">Hutton Portal</a>
-  <div class="nav-right">
-    {% if current_user.is_authenticated %}
-      <span>{{ current_user.name or current_user.email }}</span>
-      {% if current_user.role == 'admin' %}<a href="/admin">Admin</a>{% endif %}
-      <a href="/logout">Sign out</a>
+  <a class="brand" href="/">Hutton</a>
+  {% if current_user.is_authenticated %}
+  <div class="nav-tabs">
+    <a href="/" class="{{ 'active' if request.path == '/' }}">Dashboard</a>
+    {% if current_user.role == 'admin' %}
+    <a href="/admin" class="{{ 'active' if request.path.startswith('/admin') }}">Admin</a>
     {% endif %}
   </div>
+  <div class="nav-right">
+    <span>{{ current_user.name or current_user.email }}</span>
+    <a href="/logout">Sign out</a>
+  </div>
+  {% endif %}
 </nav>
 <div class="container">
   {% with msgs = get_flashed_messages() %}{% if msgs %}{% for m in msgs %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}{% endwith %}

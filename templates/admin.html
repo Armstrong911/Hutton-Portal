@@ -3,15 +3,17 @@
 {% block content %}
 <h1>Admin</h1>
 
-<!-- Flash messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% for cat, msg in messages %}
-    <div style="padding:12px 18px; border-radius:10px; margin-bottom:16px; background:{{ '#f0fdf4' if cat=='success' else '#fff1f2' }}; color:{{ '#166534' if cat=='success' else '#9f1239' }}; font-size:.875rem;">{{ msg }}</div>
-  {% endfor %}
-{% endwith %}
+<!-- Tab bar -->
+<div class="tab-bar">
+  <a href="/admin" class="{{ 'active' if not request.args.get('tab') or request.args.get('tab') == 'users' }}">Users</a>
+  <a href="/admin?tab=buildings" class="{{ 'active' if request.args.get('tab') == 'buildings' }}">Buildings</a>
+  <a href="/admin?tab=assign" class="{{ 'active' if request.args.get('tab') == 'assign' }}">Assignments</a>
+</div>
 
-<!-- Users -->
-<h2>Users</h2>
+{% set tab = request.args.get('tab', 'users') %}
+
+<!-- USERS TAB -->
+{% if tab == 'users' %}
 <div class="card" style="padding:0 24px;">
   <table>
     <tr><th>Email</th><th>Name</th><th>Role</th><th>Buildings</th><th></th></tr>
@@ -21,7 +23,7 @@
       <td>{{ u.name or '—' }}</td>
       <td><span style="font-size:.75rem; padding:4px 10px; border-radius:980px; background:rgba(0,0,0,0.07);">{{ u.role }}</span></td>
       <td style="font-size:.82rem; color:rgba(0,0,0,0.45);">{{ u.buildings|map(attribute='name')|join(', ') or '—' }}</td>
-      <td style="text-align:right; white-space:nowrap;">
+      <td style="text-align:right;">
         {% if u.id != current_user.id %}
         <form method="POST" action="/admin/user/{{ u.id }}/delete" style="display:inline;">
           <button type="submit" class="pill danger" style="font-size:.75rem; padding:5px 12px;" onclick="return confirm('Delete {{ u.email }}?')">Delete</button>
@@ -52,30 +54,8 @@
   </form>
 </div>
 
-<!-- Building Assignments -->
-<h2 style="margin-top:32px;">Building Assignments</h2>
-<div class="card">
-  <form method="POST" action="/admin/assign">
-    <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:flex-end;">
-      <div class="form-row" style="margin:0;">
-        <label>User</label>
-        <select name="user_id">
-          {% for u in users %}<option value="{{ u.id }}">{{ u.email }}</option>{% endfor %}
-        </select>
-      </div>
-      <div class="form-row" style="margin:0;">
-        <label>Building</label>
-        <select name="building_id">
-          {% for b in buildings %}<option value="{{ b.id }}">{{ b.name }}</option>{% endfor %}
-        </select>
-      </div>
-      <button type="submit" class="pill" style="align-self:flex-end;">Assign</button>
-    </div>
-  </form>
-</div>
-
-<!-- Buildings -->
-<h2 style="margin-top:32px;">Buildings</h2>
+<!-- BUILDINGS TAB -->
+{% elif tab == 'buildings' %}
 <div class="card" style="padding:0 24px;">
   <table>
     <tr><th>Name</th><th>Address</th><th></th></tr>
@@ -101,4 +81,42 @@
     <button type="submit" class="pill">Add Building</button>
   </form>
 </div>
+
+<!-- ASSIGNMENTS TAB -->
+{% elif tab == 'assign' %}
+<div class="card">
+  <h2 style="margin-top:0;">Assign User to Building</h2>
+  <form method="POST" action="/admin/assign">
+    <div class="form-row">
+      <label>User</label>
+      <select name="user_id">
+        {% for u in users %}<option value="{{ u.id }}">{{ u.email }} ({{ u.role }})</option>{% endfor %}
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Building</label>
+      <select name="building_id">
+        {% for b in buildings %}<option value="{{ b.id }}">{{ b.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="pill">Assign</button>
+  </form>
+</div>
+
+<div class="card" style="padding:0 24px;">
+  <h2 style="margin-top:16px; padding-left:0;">Current Assignments</h2>
+  <table>
+    <tr><th>User</th><th>Buildings</th></tr>
+    {% for u in users %}
+    {% if u.buildings %}
+    <tr>
+      <td>{{ u.email }}</td>
+      <td style="font-size:.85rem; color:rgba(0,0,0,0.6);">{{ u.buildings|map(attribute='name')|join(', ') }}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
 {% endblock %}
